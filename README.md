@@ -1,3 +1,5 @@
+![Hero Banner](hero-banner.jpg)
+
 # Hermes: Theia — Codex Vision Skill
 
 A Hermes Agent skill for image analysis and generation via the OpenAI Codex CLI.
