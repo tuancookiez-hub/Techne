@@ -1,47 +1,55 @@
-"""Composite 9-style banner: 2x3 grid + portrait hero + accents, with NOUS text."""
+"""Composite 9-style banner matching upstream Theia layout.
+
+Layout:
+- Top-left: Hero poster (NOUS CREATE)
+- Below hero: 2 panels stacked
+- Right of hero: 6 panels in 3x2 grid
+- Footer: Full-width text banner at bottom
+
+No stretching. Original sizes with black gutters.
+"""
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-W, H = 3840, 1664  # 21:9 banner
-GUTTER = 16
+W, H = 3840, 2400  # Taller for footer
+GUTTER = 20
 BG = (11, 11, 14)
+FOOTER_H = 120
 
 PANEL_DIR = "style_panels"
 OUT_DIR = "output"
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# Layout:
-# Left: 2x3 grid (2 cols, 3 rows = 6 panels) - TALL panels
-# Right: Portrait hero (tall, narrow) + 2 accent panels stacked
-# Big NOUS text
+# Available space for panels (above footer)
+content_h = H - FOOTER_H - GUTTER
 
-grid_cols, grid_rows = 2, 3
-grid_w = int(W * 0.40)  # Left 40% for tall grid
-right_w = W - grid_w - GUTTER  # Right 60% for portrait + accents
+# Left column: hero poster + 2 panels below
+left_w = int(W * 0.35)  # 35% width for left column
+right_w = W - left_w - GUTTER  # 65% for right grid
 
-grid_cell_w = (grid_w - (grid_cols - 1) * GUTTER) // grid_cols
-grid_cell_h = (H - (grid_rows - 1) * GUTTER) // grid_rows
+# Hero takes top 60% of left column
+hero_h = int(content_h * 0.60)
+# 2 panels below share remaining 40%
+left_bottom_h = (content_h - hero_h - GUTTER) // 2
 
-hero_w = int(right_w * 0.55)  # Portrait hero is narrow
-hero_h = H
-accent_w = right_w - hero_w - GUTTER
-accent_h = (H - GUTTER) // 2
+# Right side: 3x2 grid
+grid_cols, grid_rows = 3, 2
+grid_cell_w = (right_w - (grid_cols - 1) * GUTTER) // grid_cols
+grid_cell_h = (content_h - (grid_rows - 1) * GUTTER) // grid_rows
 
 print(f"Layout: {W}x{H}")
-print(f"Grid: {grid_w}x{H}, cells={grid_cell_w}x{grid_cell_h}")
-print(f"Hero: {hero_w}x{hero_h} (portrait)")
-print(f"Accents: {accent_w}x{accent_h}")
+print(f"Left: {left_w}x{content_h}, hero={left_w}x{hero_h}, bottom={left_w}x{left_bottom_h}")
+print(f"Right grid: {right_w}x{content_h}, cells={grid_cell_w}x{grid_cell_h}")
 
-panels = [
+HERO = "00_nous_create_poster"
+left_bottom = ["07_planetary_broadcast", "08_manufactured_multiples"]
+right_grid = [
     "01_retro_media", "02_analog_newspaper", "03_hermetic_print",
     "04_cyanotype_city", "05_network_diagram", "06_veiled_classical",
-    "07_planetary_broadcast", "08_manufactured_multiples", "09_motorsport",
 ]
 
-# Use the NOUS CREATE poster as the hero portrait
-HERO_PANEL = "00_nous_create_poster"
-
 def load_panel(name, size):
+    """Load panel and fit within size without stretching."""
     for ext in [".png", ".jpg", ".jpeg"]:
         path = os.path.join(PANEL_DIR, f"{name}{ext}")
         if os.path.exists(path):
@@ -49,76 +57,69 @@ def load_panel(name, size):
             target_w, target_h = size
             img_ratio = img.width / img.height
             target_ratio = target_w / target_h
-            ratio_diff = abs(img_ratio - target_ratio) / max(img_ratio, target_ratio)
-            if ratio_diff < 0.50:
-                return img.resize((target_w, target_h), Image.LANCZOS)
+            
+            # Always preserve aspect ratio — never stretch
             if img_ratio > target_ratio:
-                new_w, new_h = target_w, int(target_w / img_ratio)
+                new_w = target_w
+                new_h = int(target_w / img_ratio)
             else:
-                new_h, new_w = target_h, int(target_h * img_ratio)
+                new_h = target_h
+                new_w = int(target_h * img_ratio)
+            
             img = img.resize((new_w, new_h), Image.LANCZOS)
             canvas = Image.new("RGB", size, BG)
-            canvas.paste(img, (0, 0))
+            # Center the image
+            paste_x = (target_w - new_w) // 2
+            paste_y = (target_h - new_h) // 2
+            canvas.paste(img, (paste_x, paste_y))
             return canvas
     raise FileNotFoundError(f"Panel not found: {name}")
 
 banner = Image.new("RGB", (W, H), BG)
 draw = ImageDraw.Draw(banner)
 
-# Place 2x3 grid (panels 0-5) on the LEFT
-for i in range(6):
+# ─── Left column ──────────────────────────────────────────────
+
+# Hero poster (top-left)
+hero = load_panel(HERO, (left_w, hero_h))
+banner.paste(hero, (0, 0))
+
+# 2 panels below hero
+for i, name in enumerate(left_bottom):
+    y = hero_h + GUTTER + i * (left_bottom_h + GUTTER)
+    panel = load_panel(name, (left_w, left_bottom_h))
+    banner.paste(panel, (0, y))
+
+# ─── Right grid (3x2) ─────────────────────────────────────────
+
+for i, name in enumerate(right_grid):
     col = i % grid_cols
     row = i // grid_cols
-    x = col * (grid_cell_w + GUTTER)
+    x = left_w + GUTTER + col * (grid_cell_w + GUTTER)
     y = row * (grid_cell_h + GUTTER)
-    panel = load_panel(panels[i], (grid_cell_w, grid_cell_h))
+    panel = load_panel(name, (grid_cell_w, grid_cell_h))
     banner.paste(panel, (x, y))
-    
-    # Label
-    label = panels[i].split("_", 1)[1].replace("_", " ").upper()
-    bbox = draw.textbbox((0, 0), label)
-    text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    label_bg = Image.new("RGBA", (text_w + 8, text_h + 4), (0, 0, 0, 180))
-    banner.paste(label_bg, (x + 4, y + 4), label_bg)
-    draw.text((x + 8, y + 6), label, fill=(255, 255, 255))
 
-# Right side: Portrait hero (NOUS CREATE poster)
-hero_x = grid_w + GUTTER
-hero_y = 0
-hero = load_panel(HERO_PANEL, (hero_w, hero_h))
-banner.paste(hero, (hero_x, hero_y))
+# ─── Footer ───────────────────────────────────────────────────
 
-# 2 accent panels stacked to the RIGHT of hero (panels 7, 8 from original 9)
-for i, idx in enumerate([7, 8]):
-    x = hero_x + hero_w + GUTTER
-    y = i * (accent_h + GUTTER)
-    panel = load_panel(panels[idx], (accent_w, accent_h))
-    banner.paste(panel, (x, y))
-    
-    label = panels[idx].split("_", 1)[1].replace("_", " ").upper()
-    bbox = draw.textbbox((0, 0), label)
-    text_w, text_h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    label_bg = Image.new("RGBA", (text_w + 8, text_h + 4), (0, 0, 0, 180))
-    banner.paste(label_bg, (x + 4, y + 4), label_bg)
-    draw.text((x + 8, y + 6), label, fill=(255, 255, 255))
+footer_y = content_h + GUTTER
+footer = Image.new("RGB", (W, FOOTER_H), (230, 230, 230))  # Light gray like Theia
+draw_footer = ImageDraw.Draw(footer)
 
-# Big NOUS text overlay (bottom left, over grid area)
 try:
-    font = ImageFont.truetype("C:/Windows/Fonts/Impact.ttf", 200)
+    font = ImageFont.truetype("C:/Windows/Fonts/Consolas.ttf", 28)
 except:
     font = ImageFont.load_default()
 
-text = "NOUS"
-bbox = draw.textbbox((0, 0), text, font=font)
+footer_text = "NOUS BRANDING IS HOW HERMES CREATES.  *  VISUAL IDENTITY FOR THE OPEN FUTURE.  *  PERCEPTION. REASONING. ACTION.  *  BUILT BY NOUS. FOR ANY MODEL.  *  NOUSRESEARCH.COM"
+bbox = draw_footer.textbbox((0, 0), footer_text, font=font)
 text_w = bbox[2] - bbox[0]
 text_h = bbox[3] - bbox[1]
-text_x = 40
-text_y = H - text_h - 40
+text_x = (W - text_w) // 2
+text_y = (FOOTER_H - text_h) // 2
 
-# Text shadow
-draw.text((text_x + 6, text_y + 6), text, font=font, fill=(0, 0, 0))
-# Text
-draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255))
+draw_footer.text((text_x, text_y), footer_text, font=font, fill=(20, 20, 20))
+banner.paste(footer, (0, footer_y))
 
 # Save
 banner.save(os.path.join(OUT_DIR, "nous-styles-banner-raw.png"), "PNG")
