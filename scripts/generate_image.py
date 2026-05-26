@@ -15,7 +15,7 @@ if not API_KEY:
                     break
 
 URL = "https://ark.ap-southeast.bytepluses.com/api/v3/images/generations"
-MODEL = "seedream-4-0-250828"
+MODEL = "seedream-5-0-260128"
 
 MIME = {
     ".jpg": "image/jpeg", ".jpeg": "image/jpeg",

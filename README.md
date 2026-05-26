@@ -2,12 +2,8 @@
 
 > Techne (Τέχνη) — Greek personification of craft, skill, and technical art. The root of "technology."
 
-**Codex-only Nous Research visual identity projects, adapted for any model.**  
+**Nous Research visual identity, adapted for any model.**  
 No Codex CLI, no ChatGPT Plus. Swap in any backend — Seedream, Kimi, Ark, or whatever comes next.
-
-![Techne Banner](output/techne_banner_v2_imprint.png)
-
-> **Banner workflow:** Seedream-5.0 generates clean panels → Python/PIL composites with real fonts → 14-step imprint post-processing for the zine aesthetic. No garbled AI text — all typography is programmatically rendered.
 
 ---
 
@@ -20,14 +16,12 @@ No Codex CLI, no ChatGPT Plus. Swap in any backend — Seedream, Kimi, Ark, or w
 | **Image analysis** | Describe, QA, and understand images via Kimi K2.6 vision |
 | **Batch generation** | Generate multiple images from a prompt file, with optional shared reference |
 | **Identity-preserve** | Pass reference images with `--image ref.jpg` for consistent characters/style |
-| **Banner compositing** | Multi-panel mood board layouts with Python/PIL compositing + imprint |
 
 ## Supported Models
 
 | Model | Provider | Use Case | Cost |
 |---|---|---|---|
-| **Seedream 5.0 Lite** | ByteDance Ark | Primary image generation | Free tier (50 gens) |
-| **Seedream 4.0** | ByteDance Ark | Image generation (legacy) | Free tier |
+| **Seedream 5.0** | ByteDance Ark | Primary image generation | Free tier (50 gens/day) |
 | **Kimi K2.6** | Moonshot | Vision analysis, image QA | Pay-per-use |
 | **Any OpenAI-compatible** | Any | Drop-in replacement for Codex | Varies |
 
@@ -59,15 +53,6 @@ python scripts/postprocess.py raw.png final.png --mode imprint --intensity 0.7
 
 # Analyze an image
 python scripts/analyze_image.py photo.jpg "Describe this"
-
-# Generate 4K 21:9 mood board banner (clean panels + real text)
-python scripts/gen_banner_panels_v2.py      # generates clean panels (no text)
-python scripts/composite_banner_v2.py        # composites + adds real fonts
-python scripts/postprocess.py output/techne_banner_v2_raw.png output/techne_banner_v2_imprint.png --mode imprint --intensity 0.45
-
-# Legacy v1 banner (generated with text in prompts)
-python scripts/gen_banner_panels.py
-python scripts/composite_banner.py
 ```
 
 ## Pipeline
@@ -98,18 +83,14 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 
 ```
 Techne/
-├── SKILL.md                     # Hermes skill definition (Techne tooling)
+├── SKILL.md                     # Hermes skill definition
 ├── README.md                    # this file
 ├── .gitignore                   # prevents key/image leaks
 ├── scripts/
 │   ├── generate_image.py        # Seedream gen + --image refs + --postprocess
 │   ├── batch_generate.py        # Batch gen with optional shared reference
 │   ├── analyze_image.py         # Vision analysis via Kimi
-│   ├── postprocess.py           # 14-step analog print pipeline
-│   ├── gen_banner_panels.py     # Generate multi-panel banner assets (legacy v1)
-│   ├── gen_banner_panels_v2.py  # Generate clean panels without text
-│   ├── composite_banner.py      # Composite panels into 4K 21:9 banner (legacy v1)
-│   └── composite_banner_v2.py   # Composite with real fonts + label backgrounds
+│   └── postprocess.py           # 14-step analog print pipeline
 ├── references/                  # Style docs, design language, lane audits
 │   ├── nous-branding-skill.md   # Upstream Nous branding style guide (v2.1)
 │   ├── design.md                # Core design principles
