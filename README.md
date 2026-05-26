@@ -1,6 +1,6 @@
 # Nous Branding — MultiModel
 
-![Banner](output/nous-branding-banner-composite-imprint.png)
+![Banner](banner.png)
 
 *Above: A 21:9 banner generated with this pipeline — 9 panels via Seedream 5.0, composited with PIL, imprint post-processed.*
 
