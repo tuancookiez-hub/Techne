@@ -1,11 +1,11 @@
-"""Composite Nous Branding banner: 3:2 aspect ratio matching Theia upstream."""
+"""Composite Nous Branding banner: 4K 21:9 mood board layout.
+Panels are NEVER stretched. If aspect ratios don't match, letterbox with black."""
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-# Target: 2400 x 1600 (3:2, matching Theia's 1280x853 aspect ratio)
-# Scaled up for retina displays
-W, H = 2400, 1600
-GUTTER = 12
+# 21:9 ultrawide at 4K
+W, H = 3840, 1664
+GUTTER = 16
 PANEL_DIR = "banner_panels"
 OUT_DIR = "output"
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -15,58 +15,50 @@ BG = (11, 11, 14)
 PANEL_BORDER = (26, 26, 26)
 FOOTER_BG = (230, 230, 230)
 
-# Layout: match Theia exactly
-# 4 cols x 6 rows + footer
-# Content = 93% height, footer = 7%
+# Layout: 4 cols x 6 rows + footer
+# Hero + Identity are tall (rows 1-4)
+# Zines + Diagrams are square-ish (rows 1-2, 3-4)
+# Bottom row (rows 5-6): symbols, anime_portal, layout_refs
+# Footer: row 7
+
 content_h = int(H * 0.93)
 footer_h = H - content_h
 
-# 6 rows + 5 gutters
 row_h = (content_h - 5 * GUTTER) // 6
-# 4 cols + 3 gutters
 col_w = (W - 3 * GUTTER) // 4
 
-print(f"Layout: {W}x{H} ({W/H:.2f}:1), cells={col_w}x{row_h}, footer={footer_h}px")
+print(f"Layout: {W}x{H} (21:9), cells={col_w}x{row_h}, footer={footer_h}px")
 
-def load_panel(name, size, crop_center=True):
+def load_panel(name, size):
+    """Load panel and fit within size WITHOUT stretching.
+    Preserves aspect ratio, letterboxes with black if needed."""
     for ext in [".png", ".jpg", ".jpeg"]:
         path = os.path.join(PANEL_DIR, f"{name}{ext}")
         if os.path.exists(path):
             img = Image.open(path).convert("RGB")
             target_w, target_h = size
+            
+            # Calculate fit size (preserve aspect ratio)
+            img_ratio = img.width / img.height
             target_ratio = target_w / target_h
-            img_w, img_h = img.size
-            img_ratio = img_w / img_h
             
-            # For very wide panels with arranged content, use fit (letterbox)
-            # instead of aggressive center crop
-            if target_ratio > 1.8:
-                # Fit mode: resize to fit within target, then paste centered
-                if img_ratio > target_ratio:
-                    new_w = target_w
-                    new_h = int(target_w / img_ratio)
-                else:
-                    new_h = target_h
-                    new_w = int(target_h * img_ratio)
-                img = img.resize((new_w, new_h), Image.LANCZOS)
-                # Create black canvas and paste centered
-                canvas = Image.new("RGB", size, BG)
-                paste_x = (target_w - new_w) // 2
-                paste_y = (target_h - new_h) // 2
-                canvas.paste(img, (paste_x, paste_y))
-                return canvas
-            
-            # Standard center crop for other panels
             if img_ratio > target_ratio:
-                new_w = int(img_h * target_ratio)
-                left = (img_w - new_w) // 2
-                img = img.crop((left, 0, left + new_w, img_h))
+                # Image is wider than target — fit to width
+                new_w = target_w
+                new_h = int(target_w / img_ratio)
             else:
-                new_h = int(img_w / target_ratio)
-                top = (img_h - new_h) // 2
-                img = img.crop((0, top, img_w, top + new_h))
+                # Image is taller than target — fit to height
+                new_h = target_h
+                new_w = int(target_h * img_ratio)
             
-            return img.resize(size, Image.LANCZOS)
+            img = img.resize((new_w, new_h), Image.LANCZOS)
+            
+            # Center on black canvas
+            canvas = Image.new("RGB", size, BG)
+            paste_x = (target_w - new_w) // 2
+            paste_y = (target_h - new_h) // 2
+            canvas.paste(img, (paste_x, paste_y))
+            return canvas
     raise FileNotFoundError(f"Panel not found: {name}")
 
 def get_font(size, bold=True):
@@ -85,7 +77,7 @@ def get_font(size, bold=True):
 canvas = Image.new("RGB", (W, H), BG)
 draw = ImageDraw.Draw(canvas)
 
-# Panel positions matching Theia layout exactly
+# Panel positions
 panels = {
     "hero": (0, 0, col_w, row_h * 4 + GUTTER * 3),
     "identity": (col_w + GUTTER, 0, col_w, row_h * 4 + GUTTER * 3),
@@ -98,7 +90,7 @@ panels = {
     "layout_refs": (3 * (col_w + GUTTER), 4 * (row_h + GUTTER), col_w, row_h * 2 + GUTTER),
 }
 
-# Place panels
+# Place panels (fit mode, no stretch)
 for name, (x, y, w, h) in panels.items():
     try:
         panel = load_panel(name, (w, h))
@@ -121,11 +113,11 @@ footer_text = [
 ]
 
 try:
-    footer_font = get_font(16, bold=False)
+    footer_font = get_font(24, bold=False)
     seg_w = W // len(footer_text)
     for i, text in enumerate(footer_text):
-        x = i * seg_w + 15
-        y = footer_y + (footer_h - 16) // 2
+        x = i * seg_w + 20
+        y = footer_y + (footer_h - 24) // 2
         draw.text((x, y), text, fill=(20, 20, 20), font=footer_font)
 except Exception as e:
     print(f"Footer text error: {e}")
