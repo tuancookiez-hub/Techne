@@ -30,33 +30,36 @@ col_w = (W - 3 * GUTTER) // 4
 print(f"Layout: {W}x{H} (21:9), cells={col_w}x{row_h}, footer={footer_h}px")
 
 def load_panel(name, size):
-    """Load panel and fit within size WITHOUT stretching.
-    Preserves aspect ratio, letterboxes with black if needed."""
+    """Load panel and fit within size.
+    Uses slight stretch if ratios are close (within 15%), otherwise letterbox."""
     for ext in [".png", ".jpg", ".jpeg"]:
         path = os.path.join(PANEL_DIR, f"{name}{ext}")
         if os.path.exists(path):
             img = Image.open(path).convert("RGB")
             target_w, target_h = size
             
-            # Calculate fit size (preserve aspect ratio)
             img_ratio = img.width / img.height
             target_ratio = target_w / target_h
+            ratio_diff = abs(img_ratio - target_ratio) / max(img_ratio, target_ratio)
             
+            # If ratios are close (within 50%), stretch to fill
+            # This eliminates black space for square images in wide slots
+            if ratio_diff < 0.50:
+                return img.resize((target_w, target_h), Image.LANCZOS)
+            
+            # Otherwise use fit mode (preserve aspect ratio, letterbox)
             if img_ratio > target_ratio:
-                # Image is wider than target — fit to width
                 new_w = target_w
                 new_h = int(target_w / img_ratio)
             else:
-                # Image is taller than target — fit to height
                 new_h = target_h
                 new_w = int(target_h * img_ratio)
             
             img = img.resize((new_w, new_h), Image.LANCZOS)
-            
-            # Center on black canvas
             canvas = Image.new("RGB", size, BG)
-            paste_x = (target_w - new_w) // 2
-            paste_y = (target_h - new_h) // 2
+            # Align to top-left instead of centering — black space goes to right/bottom
+            paste_x = 0
+            paste_y = 0
             canvas.paste(img, (paste_x, paste_y))
             return canvas
     raise FileNotFoundError(f"Panel not found: {name}")
