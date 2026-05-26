@@ -2,7 +2,7 @@
 
 ![Banner](banner.png)
 
-*Above: A 21:9 banner generated with this pipeline — 9 panels via image generation, composited with PIL, imprint post-processed.*
+*Above: A 21:9 banner generated with this pipeline.*
 
 **Nous Research visual identity, model-agnostic.**  
 Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Works with any image generation backend.
