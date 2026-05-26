@@ -1,0 +1,10 @@
+# Generated/test images
+test_output.jpg
+theia_cover.jpg
+
+# Prompt drafts
+theia_prompt.txt
+
+# Environment files (never commit API keys)
+.env
+.env.*

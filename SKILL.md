@@ -1,46 +1,46 @@
 ---
-name: codex-vision
-description: "Use Codex CLI for image analysis and generation — vision tasks that the Hermes vision_analyze tool can't handle. Covers MCP setup, exec workflow, image generation with the built-in image_gen tool, and iCloud File Provider placeholder pitfalls."
+name: techne
+description: "Nous Branding MultiModel — Codex-only visual identity projects adapted for any model. Image gen via Ark Seedream, vision via Kimi, analog imprint post-processing. No ChatGPT Plus required."
 version: 1.0.0
-author: Hermes Agent
+author: Techne
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [Codex, Vision, Image-Generation, GPT-Image, MCP]
-    related_skills: [codex, claude-code, hermes-agent]
+    tags: [Vision, Image-Generation, Seedream, ByteDance-Ark, Kimi, Imprint]
+    related_skills: []
 ---
 
-# Codex Vision — Image Analysis and Generation via Codex CLI
+# Techne — Nous Branding MultiModel
 
 ## Overview
 
-Use the Codex CLI (`codex exec`) for vision tasks: analyzing images that the Hermes `vision_analyze` tool can't handle, and generating new images via Codex's built-in `image_gen` tool (GPT-image-2).
+**Codex-only Nous Research visual identity projects, adapted for any model.**
 
-This skill goes beyond basic vision analysis. It covers:
+Use **ByteDance Ark Seedream-4.0** for image generation, **Kimi K2.6** for vision analysis, and the **Imprint pipeline** for analog print post-processing. No Codex CLI, no ChatGPT Plus.
 
-- **Image analysis** — Detailed descriptions, QA, and understanding of local images
-- **Image generation** — Generate new images using Codex's built-in `image_gen` tool
-- **Identity-preserve generation** — Use reference images to maintain consistent identity across generated portraits
-- **MCP server setup** — Register Codex as an MCP server in Hermes for code tasks
-- **Hermes integration** — Proper handling of `codex exec` from non-TTY Hermes terminal sessions
+This skill covers:
 
-**Auth is ChatGPT OAuth, not API key.** Codex uses ChatGPT Plus OAuth tokens stored in `~/.codex/auth.json` with `"auth_mode": "chatgpt"` and `"OPENAI_API_KEY": null`. This means you must have an active ChatGPT Plus subscription and run `codex auth login` at least once.
+- **Image generation** — Text-to-image via Ark Seedream API
+- **Image analysis** — Describe, QA, and understand local images via Kimi vision
+- **Batch generation** — Multiple images from a prompt file
+- **Identity-preserve generation** — Use reference images + Kimi description for consistent identity
+
+**Auth is API key, not OAuth.** Uses `BYTEDANCE_API_KEY` from `.env` for generation and `KIMI_API_KEY` for vision.
 
 ---
 
 ## When to Use
 
-- Analyzing an image in detail (who/what, style, mood, colors, composition)
-- Generating a new image from a text prompt
-- Generating an image with identity preservation from a reference photo
-- Generating portraits, editorial characters, maps, or scene illustrations
-- QA of previously generated images for identity consistency or artifacts
+- Generating images from text prompts
+- Analyzing images in detail (who/what, style, mood, colors, composition)
+- Generating portraits, editorial characters, scenes
+- QA of generated images for consistency or artifacts
 
 **Don't use for:**
-- Quick image lookups (use `vision_analyze` if the image is a URL)
-- Image generation that doesn't need Codex's built-in tool (use `image_generate` / FAL for style-diverse generation)
-- Video or multi-frame content
+- Quick image lookups (use Hermes `vision_analyze` tool if the image is a URL)
+- Video generation (use Seedance models on Ark)
+- 3D model generation (use Hyper3D on Ark)
 
 ---
 
@@ -48,232 +48,138 @@ This skill goes beyond basic vision analysis. It covers:
 
 | Requirement | Details |
 |---|---|
-| **Codex CLI** | `npm install -g @openai/codex` |
-| **ChatGPT Plus** | Required for image generation (OAuth, not API key) |
-| **Auth** | `codex auth login` completed — valid `~/.codex/auth.json` |
-| **macOS `sips`** | For format conversion on macOS. On Linux, use `convert` from ImageMagick |
-| **Hermes Agent** | The skill is designed for the Hermes agent framework |
-
----
-
-## MCP Setup (Code Tasks)
-
-Add Codex as an MCP server to Hermes so its code tools are available natively:
-
-```bash
-hermes mcp add codex --command codex --args mcp-server
-```
-
-**What you get:** `codex` (run a coding session) and `codex-reply` (continue a thread).
-
-**Important:** The MCP server does **NOT** expose image generation. Use `codex exec` for all vision and image work.
-
-**Auth:** If tokens are invalidated, re-auth with `codex auth login`.
-
----
-
-## Image Analysis
-
-### Quick Analysis
-
-```bash
-cd /path/to/images && codex exec \
-  "Describe this image in detail — who/what is depicted, style, mood, colors, composition" \
-  --image <filename.jpg> \
-  --skip-git-repo-check
-```
-
-- `--skip-git-repo-check` is required when the working directory is not a git repo
-- Codex auto-selects the configured model (typically GPT-4o or higher for vision)
-
-### Cross-Directory Analysis
-
-```bash
-codex exec \
-  "Describe this image in detail" \
-  --image /full/path/to/image.jpg \
-  --skip-git-repo-check
-```
-
-### Auth Failures
-
-```
-401 Unauthorized
-Your access token could not be refreshed because your refresh token was already used.
-```
-
-→ User needs to re-authenticate: `codex auth login`
-
-**MCP is not a bypass:** `mcp_codex_codex` uses the same auth path. When CLI OAuth is invalidated, MCP sessions fail with the same error.
+| **Seedream model activated** | Activate `seedream-4-0-250828` on Ark dashboard |
+| **BYTEDANCE_API_KEY** | Image gen key in `.env` |
+| **KIMI_API_KEY** | Already configured for vision |
 
 ---
 
 ## Image Generation
 
-### Critical: Writable Sandbox Required
-
-Codex runs in a read-only sandbox by default. For image generation (which writes to `$CODEX_HOME/generated_images/`), you **must** use `-s workspace-write`:
-
-```bash
-codex exec --skip-git-repo-check -s workspace-write --add-dir /target/dir \
-  "Generate a portrait. Save to /target/dir/output.jpg"
-```
-
-If the target output directory differs from the workdir, include it via `--add-dir`.
-
 ### Basic Generation
 
 ```bash
-cd /target/directory
-
-codex exec --skip-git-repo-check -s workspace-write \
-  --add-dir /target/directory \
-  "Generate a photorealistic portrait of a woman in a Pacific Northwest forest at dawn. Save to /target/directory/output.jpg"
+python scripts/generate_image.py \
+  "A photorealistic portrait of a woman in a Pacific Northwest forest at dawn" \
+  output.jpg
 ```
 
-### Non-TTY Prompt Handling (Hermes Terminal)
+Output is a 2K (2848x1600) JPEG image saved locally.
 
-In Hermes terminal sessions (non-TTY), `codex exec` may silently drop a positional prompt. **Always pipe via stdin** for reliable delivery:
+### Generate with Reference (Image-to-Image)
+
+Seedream supports reference images directly — pass them with `--image`:
 
 ```bash
-printf '%s' "Generate a portrait. Save to /target/output.jpg" | \
-  codex exec --skip-git-repo-check -s workspace-write \
-    --add-dir /target/directory \
-    -
+# Single reference for style/identity guidance
+python scripts/generate_image.py --image reference.jpg \
+  "Same person, different outfit, garden setting" output.jpg
+
+# Multiple references (e.g., style + subject)
+python scripts/generate_image.py --image style_ref.jpg --image subject.jpg \
+  "Combine the style of image 1 with the subject from image 2" output.jpg
 ```
 
-This is critical for image generation runs triggered from Telegram, Discord, or other non-interactive Hermes channels.
+Local images are base64-encoded and sent as data URLs — no uploading needed.
 
-### Output Path Resolution
-
-Codex writes generated images to `$CODEX_HOME/generated_images/<session_id>/ig_XXXX.png` first, then you copy/convert to the desired final path:
+### Batch with Consistent Reference
 
 ```bash
-# 1. Generate
-codex exec --skip-git-repo-check -s workspace-write --add-dir /target/dir \
-  "Generate a portrait. Save to /target/dir/output.jpg"
-
-# 2. Find the latest session's output
-SESSION=$(ls -lt "$HOME/.codex/generated_images/" | head -1 | awk '{print $NF}')
-
-# 3. Convert (macOS sips)
-sips -s format jpeg "$HOME/.codex/generated_images/$SESSION/ig_*.png" --out /target/dir/output.jpg
+# Every generation in the batch uses the same reference for identity consistency
+python scripts/batch_generate.py --image reference.jpg prompts.txt ./output
 ```
-
-**Timeout:** Image generation takes 2–5 minutes. Use `timeout=300` in Hermes terminal calls.
-
----
-
-## Identity-Preserve Generation
-
-Use a reference image to guide identity (face, build, style) in generated output. The `image_gen` tool treats references as style/identity guidance — there is no explicit face-locking parameter, so results are non-deterministic.
-
-### Verbose Prompt (Quality, Slow)
-
-```bash
-codex exec --skip-git-repo-check -s workspace-write \
-  --add-dir /path/to/references \
-  -i reference.jpg \
-  --add-dir /path/to/output \
-  "Use case: identity-preserve
-Asset type: portrait
-Primary request: A portrait of a woman with long curly hair on a cabin deck at dawn. Soft morning light, mist, mountains in the background.
-Input images: Image 1: canonical reference — preserve exact face, face shape, hair, build, skin tone
-Style: photorealistic, natural morning light, warm tones
-Constraints: lock face identity from reference. Change only scene and clothing. No text, no watermark.
-Output: save to /path/to/output/result.jpg"
-```
-
-### Brief Prompt (Fast, Iterative)
-
-```bash
-codex exec --skip-git-repo-check -s workspace-write \
-  --add-dir /path/to/references \
-  -i reference.jpg \
-  --add-dir /path/to/output \
-  "Generate a portrait: woman, curly hair, slim, on a morning deck with coffee, natural light. Reference: reference.jpg. Save to /path/to/output/result.jpg"
-```
-
-### Key Flags Reference
-
-| Flag | Purpose |
-|---|---|
-| `--add-dir <path>` | Whitelist a directory for read/write access in the sandbox |
-| `-i <file>` or `--image <file>` | Attach a reference image (must be in an `--add-dir` directory) |
-| `-s workspace-write` | Enable writable sandbox (required for image generation) |
-| `--skip-git-repo-check` | Skip git repo validation (required outside git repos) |
-| `-` | Read prompt from stdin (required in non-TTY sessions) |
 
 ### Prompt Style Guide
 
-| Use case | Prompt style | Expected time |
+| Use case | Style | Expected time |
 |---|---|---|
-| Iterative exploration, pose variety | Brief single-line | ~60s |
-| Final canonical portraits | Verbose structured | 2–3 min |
-| Time-critical generation | Brief only | ~60s |
-| Multi-person generation | Verbose or brief (test both) | Varies |
-
-**Rule:** Start with brief prompts for iteration. Use verbose structured for final assets. If a verbose prompt times out (300s), retry with a condensed version.
+| Iterative exploration | Brief single-line | ~8s |
+| Final canonical assets | Verbose detailed description | ~8s |
 
 ---
 
-## Time-Aware Scene Generation
+## Image Analysis
 
-Match the scene to actual local time for authentic lighting:
+### Analyze a Local Image
 
 ```bash
-date '+%Y-%m-%d %H:%M %Z'
+python scripts/analyze_image.py /path/to/photo.jpg \
+  "Describe this image in detail — who/what, style, mood, colors, composition"
 ```
 
-| Time of Day | Lighting & Scene Context |
-|---|---|
-| Morning (6–11 AM) | Soft sun, mist, golden/cream light, warm drinks, waking scenes |
-| Midday (11 AM–5 PM) | Clear light, warm indoor sun, afternoon clarity |
-| Evening (5–8 PM) | Golden hour, sunset, last warm light, shadows |
-| Night (8 PM–6 AM) | Stars, darkness, candlelight, rain at night, artificial light |
+### QA Generated Images
 
-Include the actual local time in the prompt for Codex to generate appropriate lighting and atmosphere.
+```bash
+python scripts/analyze_image.py /path/to/generated.jpg \
+  "Does this image match the prompt? Any artifacts or inconsistencies?"
+```
+
+---
+
+## Batch Generation
+
+```bash
+python scripts/batch_generate.py prompts.txt ./output
+```
+
+prompts.txt:
+```
+A futuristic city at sunset, digital art
+A cat on a windowsill, watercolor
+# This line is skipped
+A mountain landscape, oil painting
+```
 
 ---
 
 ## Messenger Delivery Workflow
 
-For images requested over Telegram, Discord, or other messaging platforms:
+For images requested over Telegram, Discord, or other messaging:
 
-1. Generate via `codex exec` with reference attached (if identity-preserve)
-2. Copy/convert the output PNG to a stable project path
-3. Verify with `file` / `ls -lh`
-4. Run a quick `vision_analyze` QA pass for identity consistency, scene match, artifacts
-5. Deliver with `MEDIA:/absolute/path/to/file` in the final response
-
-Keep the reply concise: one grounded sentence about the scene + the `MEDIA:` line + any major QA caveat only if one exists.
+1. Generate via `generate_image.py`
+2. Verify output with `file` / `ls -lh`
+3. Run a quick `analyze_image.py` QA pass for scene match, artifacts
+4. Deliver with `MEDIA:/absolute/path/to/file` in the final response
 
 ---
 
-## Common Pitfalls
+## Key API Details
 
-1. **Verbose prompts timeout (300s).** Use brief prompts for iteration. Condense verbose prompts if timeout occurs.
-2. **iCloud placeholders.** Files synced to iCloud may be "dataless" — correct file size but no readable pixel data. Always verify with `file <path>`.
-3. **Forgot writable sandbox.** Default read-only sandbox prevents Codex from writing generated images. Always use `-s workspace-write`.
-4. **Forgot `--add-dir`.** Without `--add-dir /target/dir`, Codex cannot write output to that directory.
-5. **Auth token expiry.** `401 Unauthorized` means re-auth via `codex auth login`.
-6. **`keep` database error.** Non-fatal. Codex proceeds without the reflection step. Ignore.
-7. **Forgot `--skip-git-repo-check`.** Always include when outside a git repo.
-8. **Non-TTY prompt dropped.** Pipe via `printf '...' | codex exec -` for reliable delivery in Hermes terminal sessions.
-9. **Output in wrong directory.** Codex writes to `$CODEX_HOME/generated_images/<session_id>/` first, not the target directory. Copy/convert afterward.
-10. **`vision_analyze` not available.** If Hermes `vision_analyze` returns errors on image input, use `codex exec` with `--image` flag for vision QA instead.
+**Endpoint:** `POST https://ark.ap-southeast.bytepluses.com/api/v3/images/generations`
+
+**Default parameters:**
+```json
+{
+  "model": "seedream-4-0-250828",
+  "prompt": "...",
+  "n": 1,
+  "size": "2K",
+  "response_format": "url",
+  "watermark": true
+}
+```
+
+Returns a URL valid for 24 hours. Scripts auto-download and save locally.
+
+**Rate limits:** ~1 request/second recommended. Concurrent tasks shown on Ark dashboard.
 
 ---
+
+## Troubleshooting
+
+| Error | Cause | Fix |
+|---|---|---|
+| `401 Unauthorized` | Invalid API key | Check `BYTEDANCE_API_KEY` in `.env` |
+| `Model not found/404` | Model not activated | Activate `seedream-4-0` on Ark dashboard |
+| `403 Forbidden` | Free credits exhausted | Check quota on dashboard |
+| `KIMI_API_KEY` error | Vision key missing | Check `KIMI_API_KEY` in `.env` |
+| `Image not found` | Bad path | Use absolute paths |
+| Timeout | Large image or slow API | Use `timeout=120` in terminal calls |
 
 ## Verification Checklist
 
-- [ ] Codex CLI is installed and `codex auth login` has been run
-- [ ] ChatGPT Plus subscription is active (required for image generation)
-- [ ] Reference images are local files, not iCloud placeholders (verify with `file <path>`)
-- [ ] All output directories are whitelisted with `--add-dir`
-- [ ] `-s workspace-write` is set for any generation task
-- [ ] `--skip-git-repo-check` is included when outside a git repo
-- [ ] Prompts are piped via `printf '...' | codex exec -` in non-TTY sessions
-- [ ] `timeout=300` is set for image generation terminal calls
-- [ ] Output was copied from `$CODEX_HOME/generated_images/<session_id>/` to the final destination
-- [ ] Generated image passes identity/scene QA before delivery
+- [ ] `seedream-4-0-250828` activated on Ark dashboard
+- [ ] `BYTEDANCE_API_KEY` set in `.env`
+- [ ] `KIMI_API_KEY` set in `.env`
+- [ ] Test generation works: `python scripts/generate_image.py "test" test.jpg`
+- [ ] Test analysis works: `python scripts/analyze_image.py test.jpg`
