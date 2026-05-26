@@ -21,8 +21,33 @@ Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-
 
 ## Quick Start
 
+### 1. Configure your API
+
+Edit `scripts/generate_image.py` and set your endpoint + key:
+
+```python
+# Example: ByteDance Ark (Seedream)
+API_URL = "https://ark.ap-southeast.bytepluses.com/api/v3/images/generations"
+API_KEY = "your-key-here"
+MODEL = "seedream-5-0-260128"
+
+# Example: OpenAI (DALL-E 3)
+# API_URL = "https://api.openai.com/v1/images/generations"
+# API_KEY = "sk-..."
+# MODEL = "dall-e-3"
+
+# Example: Stability AI
+# API_URL = "https://api.stability.ai/v2beta/stable-image/generate/sd3"
+# API_KEY = "sk-..."
+# MODEL = "sd3-large"
+```
+
+Same for vision analysis in `scripts/analyze_image.py`.
+
+### 2. Generate an image
+
 ```bash
-# Text-to-image (configure your API in generate_image.py)
+# Text-to-image
 python scripts/generate_image.py "A portrait at dawn in a forest" out.jpg
 
 # With style reference + automatic imprint post-processing
