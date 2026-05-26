@@ -1,4 +1,4 @@
-"""Generate 4 individual anime poster images and tile them into a wide panel."""
+"""Generate 4 individual anime poster images and tile them into a wide panel (1x4 row)."""
 import os
 from PIL import Image
 import urllib.request, json, base64
@@ -57,19 +57,25 @@ posters = [
     gen("Anime girl with short dark bob hair, white headband. Op-art geometric background, cyan and gold maze pattern. Retro 90s anime manga style. NO TEXT."),
 ]
 
-# Target panel size
-panel_w, panel_h = 1194, 488
-gutter = 8
-poster_w = (panel_w - gutter) // 2
-poster_h = (panel_h - gutter) // 2
+# Target: 1x4 horizontal row for 21:9 layout
+# Make each poster exactly square (504x504) with horizontal padding
+poster_size = 504
+gutter = 12
+panel_w = 4 * poster_size + 3 * gutter  # 2052
+panel_h = poster_size  # 504
 
-# Resize and tile
 panel = Image.new("RGB", (panel_w, panel_h), (11, 11, 14))
 for i, img in enumerate(posters):
-    img = img.resize((poster_w, poster_h), Image.LANCZOS)
-    x = (i % 2) * (poster_w + gutter)
-    y = (i // 2) * (poster_h + gutter)
-    panel.paste(img, (x, y))
+    # Resize to fit within square, preserving aspect ratio
+    img.thumbnail((poster_size, poster_size), Image.LANCZOS)
+    # Create square canvas and center
+    square = Image.new("RGB", (poster_size, poster_size), (11, 11, 14))
+    paste_x = (poster_size - img.width) // 2
+    paste_y = (poster_size - img.height) // 2
+    square.paste(img, (paste_x, paste_y))
+    # Place in panel
+    x = i * (poster_size + gutter)
+    panel.paste(square, (x, 0))
 
 panel.save(os.path.join(OUT_DIR, "anime_portal.jpg"), "JPEG", quality=92)
-print(f"Saved anime_portal.jpg ({panel.size})")
+print(f"Saved anime_portal.jpg ({panel.size}), each poster: {poster_size}x{poster_size} = 1:1")
