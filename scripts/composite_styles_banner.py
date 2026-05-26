@@ -38,6 +38,9 @@ panels = [
     "07_planetary_broadcast", "08_manufactured_multiples", "09_motorsport",
 ]
 
+# Use the NOUS CREATE poster as the hero portrait
+HERO_PANEL = "00_nous_create_poster"
+
 def load_panel(name, size):
     for ext in [".png", ".jpg", ".jpeg"]:
         path = os.path.join(PANEL_DIR, f"{name}{ext}")
@@ -79,13 +82,13 @@ for i in range(6):
     banner.paste(label_bg, (x + 4, y + 4), label_bg)
     draw.text((x + 8, y + 6), label, fill=(255, 255, 255))
 
-# Right side: Portrait hero (panel 6 - planetary broadcast)
+# Right side: Portrait hero (NOUS CREATE poster)
 hero_x = grid_w + GUTTER
 hero_y = 0
-hero = load_panel(panels[6], (hero_w, hero_h))
+hero = load_panel(HERO_PANEL, (hero_w, hero_h))
 banner.paste(hero, (hero_x, hero_y))
 
-# 2 accent panels stacked to the RIGHT of hero (panels 7, 8)
+# 2 accent panels stacked to the RIGHT of hero (panels 7, 8 from original 9)
 for i, idx in enumerate([7, 8]):
     x = hero_x + hero_w + GUTTER
     y = i * (accent_h + GUTTER)
