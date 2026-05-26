@@ -6,7 +6,7 @@
 
 ![Styles Banner](banner2.png)
 
-*Above: 18 generated posters in a dense collage — showcasing the full range of Nous visual identity lanes.*
+*Above: A 21:9 banner generated with this pipeline using the different paths.*
 
 **Nous Research visual identity, model-agnostic.**  
 Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Works with any image generation backend.
