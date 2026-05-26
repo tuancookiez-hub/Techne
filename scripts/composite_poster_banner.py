@@ -84,10 +84,10 @@ for name, x, y, pw, ph in placements:
     except Exception as e:
         print(f"  ERROR {name}: {e}")
 
-# Footer
+# Footer — more obvious with background bar
 draw = ImageDraw.Draw(banner)
 try:
-    font = ImageFont.truetype("C:/Windows/Fonts/Consolas.ttf", 24)
+    font = ImageFont.truetype("C:/Windows/Fonts/Impact.ttf", 48)
 except:
     font = ImageFont.load_default()
 
@@ -98,7 +98,13 @@ text_h = bbox[3] - bbox[1]
 text_x = (W - text_w) // 2
 text_y = content_h + (FOOTER_H - text_h) // 2
 
-draw.text((text_x, text_y), footer_text, font=font, fill=(180, 180, 180))
+# Draw background bar for footer
+footer_bar = Image.new("RGB", (W, FOOTER_H), (40, 40, 50))
+banner.paste(footer_bar, (0, content_h))
+
+# Redraw on the bar
+draw = ImageDraw.Draw(banner)
+draw.text((text_x, text_y), footer_text, font=font, fill=(255, 255, 255))
 
 # Save
 banner.save(os.path.join(OUT_DIR, "nous-posters-banner-raw.png"), "PNG")
