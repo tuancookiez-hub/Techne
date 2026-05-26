@@ -2,6 +2,8 @@
 
 ![Banner](output/nous-branding-banner-composite-imprint.png)
 
+*Above: A 21:9 banner generated with this pipeline — 9 panels via Seedream 5.0, composited with PIL, imprint post-processed.*
+
 **Nous Research visual identity, model-agnostic.**  
 Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Adapted to work with any image generation backend — no Codex CLI, no ChatGPT Plus required.
 
