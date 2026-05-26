@@ -2,10 +2,10 @@
 
 ![Banner](banner.png)
 
-*Above: A 21:9 banner generated with this pipeline — 9 panels via Seedream 5.0, composited with PIL, imprint post-processed.*
+*Above: A 21:9 banner generated with this pipeline — 9 panels via image generation, composited with PIL, imprint post-processed.*
 
 **Nous Research visual identity, model-agnostic.**  
-Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Adapted to work with any image generation backend — no Codex CLI, no ChatGPT Plus required.
+Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Works with any image generation backend.
 
 ---
 
@@ -13,30 +13,16 @@ Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-
 
 | Capability | How |
 |---|---|
-| **Image generation** | Text-to-image or image-to-image via ByteDance Ark Seedream-5.0 |
+| **Image generation** | Text-to-image or image-to-image via any API (OpenAI-compatible, local, etc.) |
 | **Analog post-processing** | 14-step imprint pipeline — risograph grain, CRT scanlines, xerox decay, plate wobble, ink bleed, paper texture, palette compression |
-| **Image analysis** | Describe, QA, and understand images via Kimi K2.6 vision |
+| **Image analysis** | Describe, QA, and understand images via any vision model |
 | **Batch generation** | Generate multiple images from a prompt file, with optional shared reference |
 | **Identity-preserve** | Pass reference images with `--image ref.jpg` for consistent characters/style |
-
-## Supported Models
-
-| Model | Provider | Use Case | Cost |
-|---|---|---|---|
-| **Seedream 5.0** | ByteDance Ark | Primary image generation | Free tier (50 gens/day) |
-| **Kimi K2.6** | Moonshot | Vision analysis, image QA | Pay-per-use |
-| **Any OpenAI-compatible** | Any | Drop-in replacement for Codex | Varies |
-
-**You do NOT need:**
-- ❌ Codex CLI
-- ❌ ChatGPT Plus subscription
-- ❌ OpenAI API key
-- ❌ Specific model vendor lock-in
 
 ## Quick Start
 
 ```bash
-# Text-to-image
+# Text-to-image (configure your API in generate_image.py)
 python scripts/generate_image.py "A portrait at dawn in a forest" out.jpg
 
 # With style reference + automatic imprint post-processing
@@ -59,7 +45,7 @@ python scripts/analyze_image.py photo.jpg "Describe this"
 
 ## Banner Example
 
-This banner was generated entirely with the pipeline below — 9 panels via Seedream 5.0, composited with PIL, imprint post-processed:
+This banner was generated entirely with the pipeline below — 9 panels via image generation, composited with PIL, imprint post-processed:
 
 ```bash
 python scripts/gen_panels.py           # generate 9 panels
@@ -73,25 +59,24 @@ python scripts/postprocess.py \
 ## Pipeline
 
 ```
-prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process → final
-                                                         ├─ risograph grain
-                                                         ├─ xerox thresholding
-                                                         ├─ registration offset
-                                                         ├─ plate wobble
-                                                         ├─ CRT scanlines
-                                                         ├─ ink bleed
-                                                         ├─ paper texture
-                                                         ├─ palette compression
-                                                         └─ ... 6 more effects
+prompt + [--image refs] → Image API → raw output → Imprint post-process → final
+                                              ├─ risograph grain
+                                              ├─ xerox thresholding
+                                              ├─ registration offset
+                                              ├─ plate wobble
+                                              ├─ CRT scanlines
+                                              ├─ ink bleed
+                                              ├─ paper texture
+                                              ├─ palette compression
+                                              └─ ... 6 more effects
 ```
 
 ## Requirements
 
 | Requirement | Details |
 |---|---|
-| **ByteDance Ark key** | `BYTEDANCE_API_KEY` in `~/.hermes/.env` — from your Ark console |
-| **Seedream model** | `seedream-5-0-260128` — must be **activated** on the Ark dashboard |
-| **Kimi API key** | `KIMI_API_KEY` in `.env` — for image analysis |
+| **Image generation API** | Any OpenAI-compatible API, local model, or custom backend. Configure endpoint + key in `scripts/generate_image.py` |
+| **Vision API** | Any vision-capable model. Configure in `scripts/analyze_image.py` |
 | **Python libs** | Pillow + numpy (pre-installed with Hermes) |
 
 ## Project Structure
@@ -101,12 +86,14 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 ├── SKILL.md                     # Hermes skill definition
 ├── README.md                    # this file
 ├── .gitignore                   # prevents key/image leaks
+├── banner.png                   # Example banner output
 ├── scripts/
-│   ├── generate_image.py        # Seedream gen + --image refs + --postprocess
+│   ├── generate_image.py        # Image gen + --image refs + --postprocess
 │   ├── batch_generate.py        # Batch gen with optional shared reference
-│   ├── analyze_image.py         # Vision analysis via Kimi
+│   ├── analyze_image.py         # Vision analysis
 │   ├── postprocess.py           # 14-step analog print pipeline
 │   ├── gen_panels.py            # Generate banner panel images (no text)
+│   ├── gen_anime_portal.py      # Generate 4 poster tiles
 │   └── composite_banner.py      # Composite panels into 4K 21:9 grid + text
 ├── references/                  # Style docs, design language, lane audits
 │   ├── nous-branding-skill.md   # Upstream Nous branding style guide (v2.1)
@@ -123,7 +110,6 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 ├── nous-assets/                 # Style reference images (from upstream)
 │   ├── references/              # Character & style reference PNGs/JPGs
 │   └── palettes/                # Color palette references
-├── banner_panels/               # Generated panel images (intermediate)
 └── output/                      # Final images
 ```
 
@@ -133,12 +119,10 @@ The upstream projects require **Codex CLI + ChatGPT Plus** for image generation.
 
 | Original | This Fork |
 |---|---|
-| `codex exec --image` (vision) | `analyze_image.py` / Hermes `vision_analyze` |
-| `codex exec -s workspace-write` (image gen) | `generate_image.py` → Ark Seedream API |
-| `--mode imprint` post-process | Same `postprocess.py`, added as optional pipeline step |
-| ChatGPT Plus subscription required | **No subscription** — use free Ark quota or any API key |
-
-Future: image → video → 3D, same principle — swap the backend, keep the skill.
+| `codex exec --image` (vision) | `analyze_image.py` / any vision model |
+| `codex exec -s workspace-write` (image gen) | `generate_image.py` → any image API |
+| `--mode imprint` post-process | Same `postprocess.py`, model-agnostic |
+| ChatGPT Plus subscription required | **Any backend** — swap the API, keep the pipeline |
 
 ## License
 
