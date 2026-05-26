@@ -21,6 +21,13 @@ Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-
 
 ## Quick Start
 
+### How it works
+
+1. **Configure your API** — Pick any image generation model (3 examples below)
+2. **Generate images** — Text-to-image, with style references, or batch
+3. **Post-process** — Run the imprint pipeline for analog print aesthetics
+4. **Composite** — For banners: generate panels → composite with PIL → imprint
+
 ### 1. Configure your API
 
 Edit `scripts/generate_image.py` and set your endpoint + key:
@@ -44,24 +51,24 @@ MODEL = "seedream-5-0-260128"
 
 Same for vision analysis in `scripts/analyze_image.py`.
 
-### 2. Generate an image
+### 2. Generate images
 
 ```bash
-# Text-to-image
+# Single image
 python scripts/generate_image.py "A portrait at dawn in a forest" out.jpg
 
-# With style reference + automatic imprint post-processing
+# With style reference + auto imprint
 python scripts/generate_image.py --image ref.jpg \
   "Same aesthetic, different subject" out.jpg --postprocess
 
-# Image-to-image with multiple references
+# Multiple references
 python scripts/generate_image.py --image face.jpg --image scene.jpg \
   "Place person from image 1 into scene from image 2" out.jpg
 
-# Batch with consistent reference
+# Batch generation
 python scripts/batch_generate.py --image ref.jpg prompts.txt ./output
 
-# Just post-process an existing image
+# Post-process existing image
 python scripts/postprocess.py raw.png final.png --mode imprint --intensity 0.7
 
 # Analyze an image
