@@ -1,9 +1,7 @@
-# Techne — Nous Branding MultiModel
+# Nous Branding — MultiModel
 
-> Techne (Τέχνη) — Greek personification of craft, skill, and technical art. The root of "technology."
-
-**Nous Research visual identity, adapted for any model.**  
-No Codex CLI, no ChatGPT Plus. Swap in any backend — Seedream, Kimi, Ark, or whatever comes next.
+**Nous Research visual identity, model-agnostic.**  
+Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Adapted to work with any image generation backend — no Codex CLI, no ChatGPT Plus required.
 
 ---
 
@@ -82,7 +80,7 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 ## Project Structure
 
 ```
-Techne/
+.
 ├── SKILL.md                     # Hermes skill definition
 ├── README.md                    # this file
 ├── .gitignore                   # prevents key/image leaks
@@ -107,16 +105,14 @@ Techne/
 │   ├── references/              # Character & style reference PNGs/JPGs
 │   └── palettes/                # Color palette references
 ├── banner_panels/               # Generated panel images (intermediate)
-└── output/                      # Final composited banners & images
+└── output/                      # Final images
 ```
 
-## Why Techne?
+## Why MultiModel?
 
-This is a fork of `plntrprotocol/hermes-theia-codex-vision` and `plntrprotocol/nous-branding` — both of which require **Codex CLI + ChatGPT Plus** for image generation.
+The upstream projects require **Codex CLI + ChatGPT Plus** for image generation. This fork rewrites the execution layer to work with any model:
 
-Techne rewrites the execution layer so everything works with any model:
-
-| Original | Techne |
+| Original | This Fork |
 |---|---|
 | `codex exec --image` (vision) | `analyze_image.py` / Hermes `vision_analyze` |
 | `codex exec -s workspace-write` (image gen) | `generate_image.py` → Ark Seedream API |

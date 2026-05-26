@@ -1,23 +1,23 @@
 ---
-name: techne
-description: "Nous Branding MultiModel — Codex-only visual identity projects adapted for any model. Image gen via Ark Seedream, vision via Kimi, analog imprint post-processing. No ChatGPT Plus required."
+name: nous-branding-multimodel
+description: "Nous Branding — MultiModel. Fork of hermes-theia-codex-vision and nous-branding adapted for any image generation backend. Image gen via Ark Seedream, vision via Kimi, analog imprint post-processing. No Codex CLI or ChatGPT Plus required."
 version: 1.0.0
-author: Techne
+author: tuancookiez-hub
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
-    tags: [Vision, Image-Generation, Seedream, ByteDance-Ark, Kimi, Imprint]
+    tags: [Vision, Image-Generation, Seedream, ByteDance-Ark, Kimi, Imprint, Nous-Branding]
     related_skills: []
 ---
 
-# Techne — Nous Branding MultiModel
+# Nous Branding — MultiModel
 
 ## Overview
 
-**Codex-only Nous Research visual identity projects, adapted for any model.**
+**Nous Research visual identity, model-agnostic.**
 
-Use **ByteDance Ark Seedream-4.0** for image generation, **Kimi K2.6** for vision analysis, and the **Imprint pipeline** for analog print post-processing. No Codex CLI, no ChatGPT Plus.
+Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Adapted to work with any image generation backend — **ByteDance Ark Seedream-5.0** for generation, **Kimi K2.6** for vision analysis, and the **Imprint pipeline** for analog print post-processing. No Codex CLI, no ChatGPT Plus.
 
 This skill covers:
 
