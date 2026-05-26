@@ -28,24 +28,40 @@ col_w = (W - 3 * GUTTER) // 4
 
 print(f"Layout: {W}x{H} ({W/H:.2f}:1), cells={col_w}x{row_h}, footer={footer_h}px")
 
-def load_panel(name, size):
+def load_panel(name, size, crop_center=True):
     for ext in [".png", ".jpg", ".jpeg"]:
         path = os.path.join(PANEL_DIR, f"{name}{ext}")
         if os.path.exists(path):
             img = Image.open(path).convert("RGB")
-            # Crop to target aspect ratio before resizing to avoid distortion
             target_w, target_h = size
             target_ratio = target_w / target_h
             img_w, img_h = img.size
             img_ratio = img_w / img_h
             
+            # For very wide panels with arranged content, use fit (letterbox)
+            # instead of aggressive center crop
+            if target_ratio > 1.8:
+                # Fit mode: resize to fit within target, then paste centered
+                if img_ratio > target_ratio:
+                    new_w = target_w
+                    new_h = int(target_w / img_ratio)
+                else:
+                    new_h = target_h
+                    new_w = int(target_h * img_ratio)
+                img = img.resize((new_w, new_h), Image.LANCZOS)
+                # Create black canvas and paste centered
+                canvas = Image.new("RGB", size, BG)
+                paste_x = (target_w - new_w) // 2
+                paste_y = (target_h - new_h) // 2
+                canvas.paste(img, (paste_x, paste_y))
+                return canvas
+            
+            # Standard center crop for other panels
             if img_ratio > target_ratio:
-                # Image is wider than target — crop width
                 new_w = int(img_h * target_ratio)
                 left = (img_w - new_w) // 2
                 img = img.crop((left, 0, left + new_w, img_h))
             else:
-                # Image is taller than target — crop height
                 new_h = int(img_w / target_ratio)
                 top = (img_h - new_h) // 2
                 img = img.crop((0, top, img_w, top + new_h))
