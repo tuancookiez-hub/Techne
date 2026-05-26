@@ -5,7 +5,9 @@
 **Codex-only Nous Research visual identity projects, adapted for any model.**  
 No Codex CLI, no ChatGPT Plus. Swap in any backend — Seedream, Kimi, Ark, or whatever comes next.
 
-![Techne Banner](output/techne_banner_4k_imprint.png)
+![Techne Banner](output/techne_banner_v2_imprint.png)
+
+> **Banner workflow:** Seedream-5.0 generates clean panels → Python/PIL composites with real fonts → 14-step imprint post-processing for the zine aesthetic. No garbled AI text — all typography is programmatically rendered.
 
 ---
 
@@ -58,10 +60,14 @@ python scripts/postprocess.py raw.png final.png --mode imprint --intensity 0.7
 # Analyze an image
 python scripts/analyze_image.py photo.jpg "Describe this"
 
-# Generate 4K 21:9 mood board banner
-python scripts/gen_banner_panels.py   # generates panels
-python scripts/composite_banner.py    # composites + text
-python scripts/postprocess.py output/techne_banner_4k_raw.png output/techne_banner_4k_imprint.png --mode imprint --intensity 0.45
+# Generate 4K 21:9 mood board banner (clean panels + real text)
+python scripts/gen_banner_panels_v2.py      # generates clean panels (no text)
+python scripts/composite_banner_v2.py        # composites + adds real fonts
+python scripts/postprocess.py output/techne_banner_v2_raw.png output/techne_banner_v2_imprint.png --mode imprint --intensity 0.45
+
+# Legacy v1 banner (generated with text in prompts)
+python scripts/gen_banner_panels.py
+python scripts/composite_banner.py
 ```
 
 ## Pipeline
@@ -100,8 +106,10 @@ Techne/
 │   ├── batch_generate.py        # Batch gen with optional shared reference
 │   ├── analyze_image.py         # Vision analysis via Kimi
 │   ├── postprocess.py           # 14-step analog print pipeline
-│   ├── gen_banner_panels.py     # Generate multi-panel banner assets
-│   └── composite_banner.py      # Composite panels into 4K 21:9 banner
+│   ├── gen_banner_panels.py     # Generate multi-panel banner assets (legacy v1)
+│   ├── gen_banner_panels_v2.py  # Generate clean panels without text
+│   ├── composite_banner.py      # Composite panels into 4K 21:9 banner (legacy v1)
+│   └── composite_banner_v2.py   # Composite with real fonts + label backgrounds
 ├── references/
 │   └── identity-constants-template.md
 ├── nous-assets/                 # Style reference images (from upstream)
