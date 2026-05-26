@@ -98,7 +98,7 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 
 ```
 Techne/
-├── SKILL.md                     # Hermes skill definition
+├── SKILL.md                     # Hermes skill definition (Techne tooling)
 ├── README.md                    # this file
 ├── .gitignore                   # prevents key/image leaks
 ├── scripts/
@@ -110,11 +110,23 @@ Techne/
 │   ├── gen_banner_panels_v2.py  # Generate clean panels without text
 │   ├── composite_banner.py      # Composite panels into 4K 21:9 banner (legacy v1)
 │   └── composite_banner_v2.py   # Composite with real fonts + label backgrounds
-├── references/
-│   └── identity-constants-template.md
+├── references/                  # Style docs, design language, lane audits
+│   ├── nous-branding-skill.md   # Upstream Nous branding style guide (v2.1)
+│   ├── design.md                # Core design principles
+│   ├── design-language.md       # Visual language spec
+│   ├── pitfalls.md              # Known gotchas
+│   ├── reference-index.md       # Reference image index
+│   ├── reference-catalog.md     # Full reference catalog
+│   ├── identity-constants-template.md
+│   ├── v8-pipeline-notes.md     # Legacy pipeline docs
+│   ├── v9-imprint-pipeline.md   # Current imprint pipeline spec
+│   ├── v10-*.md / v11-*.md     # Style lane audits & candidates
+│   └── x-posts/                 # Nous X/Twitter reference screenshots
 ├── nous-assets/                 # Style reference images (from upstream)
-├── banner_panels/               # Generated panel images
-└── output/                      # Final composited banners
+│   ├── references/              # Character & style reference PNGs/JPGs
+│   └── palettes/                # Color palette references
+├── banner_panels/               # Generated panel images (intermediate)
+└── output/                      # Final composited banners & images
 ```
 
 ## Why Techne?
