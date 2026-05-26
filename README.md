@@ -1,5 +1,7 @@
 # Nous Branding — MultiModel
 
+![Banner](output/nous-branding-banner-composite-imprint.png)
+
 **Nous Research visual identity, model-agnostic.**  
 Forked from [hermes-theia-codex-vision](https://github.com/plntrprotocol/hermes-theia-codex-vision) and [nous-branding](https://github.com/plntrprotocol/nous-branding). Adapted to work with any image generation backend — no Codex CLI, no ChatGPT Plus required.
 
@@ -51,10 +53,15 @@ python scripts/postprocess.py raw.png final.png --mode imprint --intensity 0.7
 
 # Analyze an image
 python scripts/analyze_image.py photo.jpg "Describe this"
+```
 
-# Generate full banner (panels → composite → imprint)
-python scripts/gen_panels.py                              # generate 9 panels
-python scripts/composite_banner.py                        # composite into 4K grid
+## Banner Example
+
+This banner was generated entirely with the pipeline below — 9 panels via Seedream 5.0, composited with PIL, imprint post-processed:
+
+```bash
+python scripts/gen_panels.py           # generate 9 panels
+python scripts/composite_banner.py     # composite into 21:9 grid
 python scripts/postprocess.py \
   output/nous-branding-banner-composite-raw.jpg \
   output/nous-branding-banner-composite-imprint.png \
