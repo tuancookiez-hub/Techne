@@ -2,30 +2,25 @@
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-W, H = 2400, 2400  # Square 3x3 grid
-GUTTER = 16
+W, H = 3840, 1280  # 6x2 grid banner (ultrawide)
+GUTTER = 12
 BG = (11, 11, 14)
 
 PANEL_DIR = "style_panels"
 OUT_DIR = "output"
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# 3x3 grid, each cell is equal size
-cell_w = (W - 2 * GUTTER) // 3
-cell_h = (H - 2 * GUTTER) // 3
+# 6x2 grid
+cols, rows = 6, 2
+cell_w = (W - (cols - 1) * GUTTER) // cols
+cell_h = (H - (rows - 1) * GUTTER) // rows
 
-print(f"Layout: {W}x{H} (3x3 grid), cells={cell_w}x{cell_h}")
+print(f"Layout: {W}x{H} (6x2 grid), cells={cell_w}x{cell_h}")
 
 panels = [
-    "01_retro_media",
-    "02_analog_newspaper", 
-    "03_hermetic_print",
-    "04_cyanotype_city",
-    "05_network_diagram",
-    "06_veiled_classical",
-    "07_planetary_broadcast",
-    "08_manufactured_multiples",
-    "09_motorsport",
+    "01_retro_media", "02_analog_newspaper", "03_hermetic_print",
+    "04_cyanotype_city", "05_network_diagram", "06_veiled_classical",
+    "07_planetary_broadcast", "08_manufactured_multiples", "09_motorsport",
 ]
 
 def load_panel(name, size):
@@ -54,8 +49,8 @@ banner = Image.new("RGB", (W, H), BG)
 draw = ImageDraw.Draw(banner)
 
 for i, name in enumerate(panels):
-    col = i % 3
-    row = i // 3
+    col = i % cols
+    row = i // cols
     x = col * (cell_w + GUTTER)
     y = row * (cell_h + GUTTER)
     
@@ -63,7 +58,7 @@ for i, name in enumerate(panels):
     banner.paste(panel, (x, y))
     
     # Add label
-    label = name.replace("01_", "").replace("02_", "").replace("03_", "").replace("04_", "").replace("05_", "").replace("06_", "").replace("07_", "").replace("08_", "").replace("09_", "").replace("_", " ").upper()
+    label = name.split("_", 1)[1].replace("_", " ").upper()
     
     # Draw label background
     bbox = draw.textbbox((0, 0), label)
