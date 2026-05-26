@@ -51,6 +51,14 @@ python scripts/postprocess.py raw.png final.png --mode imprint --intensity 0.7
 
 # Analyze an image
 python scripts/analyze_image.py photo.jpg "Describe this"
+
+# Generate full banner (panels → composite → imprint)
+python scripts/gen_panels.py                              # generate 9 panels
+python scripts/composite_banner.py                        # composite into 4K grid
+python scripts/postprocess.py \
+  output/nous-branding-banner-composite-raw.jpg \
+  output/nous-branding-banner-composite-imprint.png \
+  --mode imprint --intensity 0.4
 ```
 
 ## Pipeline
@@ -88,7 +96,9 @@ prompt + [--image refs] → Seedream-5.0 → raw output → Imprint post-process
 │   ├── generate_image.py        # Seedream gen + --image refs + --postprocess
 │   ├── batch_generate.py        # Batch gen with optional shared reference
 │   ├── analyze_image.py         # Vision analysis via Kimi
-│   └── postprocess.py           # 14-step analog print pipeline
+│   ├── postprocess.py           # 14-step analog print pipeline
+│   ├── gen_panels.py            # Generate banner panel images (no text)
+│   └── composite_banner.py      # Composite panels into 4K 21:9 grid + text
 ├── references/                  # Style docs, design language, lane audits
 │   ├── nous-branding-skill.md   # Upstream Nous branding style guide (v2.1)
 │   ├── design.md                # Core design principles
